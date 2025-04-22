@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Proof Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #495057;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .upload-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        
+        .upload-header {
+            margin-bottom: 25px;
+        }
+        
+        .upload-header h1 {
+            color: #212529;
+            margin-bottom: 15px;
+        }
+        
+        .upload-requirements {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .upload-requirements li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .upload-requirements li i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            position: relative;
+            background: var(--secondary-color);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-area.active {
+            border-color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            margin-bottom: 15px;
+        }
+        
+        .upload-text p {
+            margin: 5px 0;
+        }
+        
+        .browse-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .browse-btn:hover {
+            background: #3a56d4;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-item {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .preview-item .file-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .settings-panel {
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--secondary-color);
+            border-radius: 8px;
+        }
+        
+        .settings-title {
+            margin-top: 0;
+            font-size: 16px;
+        }
+        
+        .setting-option {
+            margin-bottom: 15px;
+        }
+        
+        .setting-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .setting-option input {
+            margin-right: 10px;
+        }
+        
+        .upload-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        
+        .upload-status i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 600px) {
+            .preview-item {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <div class="upload-header">
+            <h1>Photo Proof</h1>
+            <ul class="upload-requirements">
+                <li><i class="fas fa-check-circle"></i> ID Card</li>
+                <li><i class="fas fa-check-circle"></i> Front House</li>
+                <li><i class="fas fa-check-circle"></i> Electricity Meter</li>
+            </ul>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="upload-text">
+                <p><strong>Drag & drop files here</strong></p>
+                <p>or</p>
+            </div>
+            <button class="browse-btn" id="browseBtn">Browse Files</button>
+            <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+        </div>
+        
+        <div class="preview-container" id="previewContainer"></div>
+        
+        <div class="settings-panel">
+            <h3 class="settings-title">Upload Settings</h3>
+            <div class="setting-option">
+                <label>
+                    <input type="radio" name="uploadMode" value="single" checked> Single Image Upload
+                </label>
+            </div>
+            <div class="setting-option">
+                <label>
+                    <input type="radio" name="uploadMode" value="multiple"> Multiple Image Upload
+                </label>
+            </div>
+            <div class="setting-option" id="maxFilesOption" style="display: none;">
+                <label>
+                    Max Files: <input type="number" id="maxFiles" min="2" max="10" value="5" style="width: 50px; margin-left: 10px;">
+                </label>
+            </div>
+        </div>
+        
+        <div class="upload-status" id="uploadStatus" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Uploading...</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInput = document.getElementById('fileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            const uploadModeRadios = document.querySelectorAll('input[name="uploadMode"]');
+            const maxFilesOption = document.getElementById('maxFilesOption');
+            const maxFilesInput = document.getElementById('maxFiles');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const progressBar = document.getElementById('progressBar');
+            
+            let files = [];
+            let isMultiple = false;
+            let maxFiles = 5;
+            
+            // Handle upload mode change
+            uploadModeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    isMultiple = this.value === 'multiple';
+                    fileInput.multiple = isMultiple;
+                    maxFilesOption.style.display = isMultiple ? 'block' : 'none';
+                    
+                    if (!isMultiple && files.length > 1) {
+                        files = [files[0]]; // Keep only the first file
+                        renderPreviews();
+                    }
+                });
+            });
+            
+            // Handle max files change
+            maxFilesInput.addEventListener('change', function() {
+                maxFiles = parseInt(this.value);
+                if (files.length > maxFiles) {
+                    files = files.slice(0, maxFiles);
+                    renderPreviews();
+                }
+            });
+            
+            // Handle browse button click
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Handle file selection
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+            
+            // Drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('active');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('active');
+            }
+            
+            uploadArea.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const droppedFiles = dt.files;
+                handleFiles(droppedFiles);
+            });
+            
+            function handleFiles(selectedFiles) {
+                const newFiles = Array.from(selectedFiles);
+                
+                if (!isMultiple) {
+                    files = [newFiles[0]]; // Take only the first file
+                } else {
+                    // Check if adding these files would exceed maxFiles
+                    const availableSlots = maxFiles - files.length;
+                    if (availableSlots <= 0) {
+                        alert(`You can only upload up to ${maxFiles} files.`);
+                        return;
+                    }
+                    
+                    // Add only up to available slots
+                    const filesToAdd = newFiles.slice(0, availableSlots);
+                    files = [...files, ...filesToAdd];
+                }
+                
+                renderPreviews();
+            }
+            
+            function renderPreviews() {
+                previewContainer.innerHTML = '';
+                
+                files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'remove-btn';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.addEventListener('click', () => removeFile(index));
+                        
+                        const fileInfo = document.createElement('div');
+                        fileInfo.className = 'file-info';
+                        fileInfo.textContent = file.name.length > 15 ? 
+                            file.name.substring(0, 12) + '...' : file.name;
+                        
+                        previewItem.appendChild(img);
+                        previewItem.appendChild(removeBtn);
+                        previewItem.appendChild(fileInfo);
+                        previewContainer.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            function removeFile(index) {
+                files.splice(index, 1);
+                renderPreviews();
+            }
+            
+            // Simulate upload process (in a real app, you would use AJAX/Fetch)
+            function simulateUpload() {
+                if (files.length === 0) {
+                    alert('Please select files to upload');
+                    return;
+                }
+                
+                uploadStatus.style.display = 'flex';
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        uploadStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span>Upload complete!</span>';
+                        setTimeout(() => {
+                            uploadStatus.style.display = 'none';
+                            progressBar.style.width = '0%';
+                        }, 2000);
+                    }
+                }, 100);
+            }
+            
+            // For demo purposes - in a real app you would call this when submitting
+            window.simulateUpload = simulateUpload;
+        });
+    </script>
+</body>
+</html>
